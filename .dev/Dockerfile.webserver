@@ -1,0 +1,79 @@
+FROM php:7.4-apache as prod
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y \
+        vim \
+        default-mysql-server \
+        pv
+
+# Enable apache rewrite module
+RUN a2enmod rewrite
+RUN service apache2 restart
+
+# Install MySQL dependencies
+RUN docker-php-ext-install mysqli pdo pdo_mysql
+
+# Set root dir
+ENV ROOT_DIR /var/www/html
+
+# Copy required files
+COPY . $ROOT_DIR
+
+# Envs for local php env file
+ARG WS_HOST_PORT
+ARG MYSQL_DATABASE
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+
+# Expose 80 for apache, 9000 for xdebug
+EXPOSE 80 9000
+
+
+
+
+
+FROM prod as dev
+
+# # Install YAML extension
+RUN apt-get install -y \
+    libyaml-dev
+
+RUN pecl channel-update pecl.php.net
+RUN pecl install yaml && docker-php-ext-enable yaml
+
+# 'gnupg2' required here for signed commits in devcontainer environment
+RUN apt-get install -y \
+    gnupg2 \
+    git \
+    zsh
+
+# Install XDebug
+RUN pecl install xdebug-2.9.7 \
+    && docker-php-ext-enable xdebug
+
+ENV XDEBUG_INI /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.remote_enable = 1" >> $XDEBUG_INI && \
+    echo "xdebug.remote_autostart = 1" >> $XDEBUG_INI
+
+# Setup non-root dev user $USER_NAME
+ENV USER_NAME mydevuser
+ENV USER_UID 1000
+ENV USER_GID 1000
+
+RUN groupadd -r -g $USER_GID $USER_NAME && \
+    useradd -r -ms /bin/zsh -u $USER_UID -g $USER_GID $USER_NAME
+
+# Pass ownership of $ROOT_DIR to $USER_NAME
+RUN chown -Rv $USER_UID:$USER_GID $ROOT_DIR | \
+    pv -f -l -s $(find | wc -l) 2>&1 > /dev/null
+
+
+
+# Switch to $USER_NAME and run any non-root user-specific steps
+USER $USER_NAME
+
+# Install Oh-my-zsh for $USER_NAME
+RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
+    git clone https://github.com/zsh-users/zsh-autosuggestions \
+              ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
+    sed -i -E "s/(^plugins=.*)\)/\1 zsh-autosuggestions)/g" $HOME/.zshrc

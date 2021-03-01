@@ -1,0 +1,87 @@
+#!/bin/bash
+
+start() {
+    docker-compose \
+        -f docker-compose.yml \
+        -f docker-compose.development.yml \
+        up $@
+}
+
+build() {
+    docker-compose \
+        -f docker-compose.yml \
+        -f docker-compose.development.yml \
+        build $@
+}
+
+stop() {
+    docker-compose \
+        -f docker-compose.yml \
+        -f docker-compose.development.yml \
+        stop $@
+}
+
+teardown() {
+    docker-compose \
+        -f docker-compose.yml \
+        -f docker-compose.development.yml \
+        down $@
+}
+
+destroy() {
+    docker-compose \
+        -f docker-compose.yml \
+        -f docker-compose.development.yml \
+        down \
+            --rmi all $@
+}
+
+help() {
+    cat << EOF
+usage: ./dev [--help] [start] [build] [stop] [teardown] [destroy]
+       <command> [<args>]
+
+These are the commands to work with dev containers:
+
+   start             Starts the required containers and builds them if necessary
+   build             Builds the required containers
+   stop              Stops running containers, leaves everything intact
+   teardown          Stops running containers, removes containers/networks
+   destroy           Stops running containers, removes images/containers/networks
+
+
+Commands can also be combined with traditional docker-compose flags, example for
+daemon mode:
+
+   $ ./dev start -d
+
+EOF
+}
+
+all_args=("$@")
+rest_args_array=("${all_args[@]:1}")
+rest_args="${rest_args_array[@]}"
+
+case $1 in
+    "start" )
+        start $rest_args
+        ;;
+    "build" )
+        build $rest_args
+        ;;
+    "stop" )
+        stop $rest_args
+        ;;
+    "teardown" )
+        teardown $rest_args
+        ;;
+    "destroy" )
+        destroy $rest_args
+        ;;
+    "--help" )
+        help
+        ;;
+    * )
+        help
+        ;;
+esac

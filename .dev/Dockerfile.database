@@ -1,0 +1,13 @@
+FROM mysql:8.0
+
+# # I fetch an sql seed file here for my db
+# RUN apt-get update && \
+#     apt-get install -y \
+#         wget
+
+# ARG REMOTE_SQL_FILE
+# ARG LOCAL_SQL_FILE
+# ENV LOCAL_SQL_FILE_PATH /docker-entrypoint-initdb.d/$LOCAL_SQL_FILE
+# RUN wget -O $LOCAL_SQL_FILE_PATH $REMOTE_SQL_FILE
+
+EXPOSE 3306

@@ -1,0 +1,37 @@
+version: "3"
+
+services:
+  webserver:
+    build:
+      target: dev
+    volumes:
+      # The dirs and files in the following list are 'bind mounted' in a one-way
+      # direction from the host machine to the container:
+      #
+      # - This mounting overrides the COPY line in the Dockerfile (as can be seen
+      #   by the persistence of local file permissions).
+      #
+      # - The bind mounting step here will undo any changes that might be made to
+      #   files during the build process (this is why an 'env' folder is not included
+      #   for example).
+      #
+      # - Bind mounting the entire folder using " - .:/var/www/html" would erase
+      #   all build changes to files and any media that was downloaded and untar-ed
+      #   within the image. This is why files/dirs are individually mounted below.
+      #
+      # - The bind mounts are included here to persist in-container changes to the host
+      #   system to help prevent losing changes if the container is accidentally rebuilt.
+      #
+      # - This 'volumes' list must be maintained if any top-level files/directories are
+      #   added or removed.
+      - ./.git:/var/www/html/.git
+      - ./.dev:/var/www/html/.dev
+      - ./.devcontainer:/var/www/html/.devcontainer
+      - ./.vscode:/var/www/html/.vscode
+      - ./.dockerignore:/var/www/html/.dockerignore
+      - ./.gitignore:/var/www/html/.gitignore
+      - ./dev:/var/www/html/dev
+      - ./docker-compose.development.yml:/var/www/html/docker-compose.development.yml
+      - ./docker-compose.yml:/var/www/html/docker-compose.yml
+      - ./index.php:/var/www/html/index.php
+      - ./README.md:/var/www/html/README.md
