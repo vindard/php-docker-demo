@@ -23,7 +23,6 @@ This setup was tested on an Ubuntu machine and should work pretty well in any Un
    export MYSQL_HOST_PORT="6033"
 
    export REMOTE_SQL_FILE="http://"
-   export LOCAL_SQL_FILE="my_db.sql"
 
    ```
 

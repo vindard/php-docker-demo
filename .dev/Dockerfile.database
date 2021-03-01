@@ -6,8 +6,7 @@ FROM mysql:8.0
 #         wget
 
 # ARG REMOTE_SQL_FILE
-# ARG LOCAL_SQL_FILE
-# ENV LOCAL_SQL_FILE_PATH /docker-entrypoint-initdb.d/$LOCAL_SQL_FILE
+# ENV LOCAL_SQL_FILE_PATH /docker-entrypoint-initdb.d/db_seed.sql
 # RUN wget -O $LOCAL_SQL_FILE_PATH $REMOTE_SQL_FILE
 
 EXPOSE 3306

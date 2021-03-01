@@ -31,7 +31,6 @@ services:
       dockerfile: .dev/Dockerfile.database
       # args:
       #   REMOTE_SQL_FILE: ${REMOTE_SQL_FILE}
-      #   LOCAL_SQL_FILE: ${LOCAL_SQL_FILE}
       #   MYSQL_DATABASE: ${MYSQL_DATABASE}
     container_name: project-mysql
     command: --default-authentication-plugin=mysql_native_password
